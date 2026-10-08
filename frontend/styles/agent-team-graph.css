@@ -1,0 +1,487 @@
+/* AgentCore 协作图外观：状态条 + DAG 卡面 + 团队便签。思考/工具仍走灵犀检查器。 */
+
+.ai-team-graph {
+  --team-live: #38bdf8;
+  --team-live-strong: #2563eb;
+  --agent-1: oklch(0.58 0.07 95);
+  --agent-2: oklch(0.58 0.07 120);
+  --agent-3: oklch(0.58 0.07 180);
+  --agent-4: oklch(0.58 0.07 205);
+  --agent-5: oklch(0.58 0.07 230);
+  --agent-6: oklch(0.58 0.07 285);
+  --agent-7: oklch(0.58 0.07 310);
+  --agent-8: oklch(0.58 0.07 335);
+  margin: 6px 0 12px;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--border-color, #e2e8f0) 80%, transparent);
+  border-radius: 12px;
+  background: var(--bg-secondary, var(--bg-primary, #fff));
+  overflow: hidden;
+}
+
+[data-theme-mode="dark"] .ai-team-graph,
+[data-theme-mode="dark"] .ai-team-canvas-host {
+  --agent-1: oklch(0.72 0.07 95);
+  --agent-2: oklch(0.72 0.07 120);
+  --agent-3: oklch(0.72 0.07 180);
+  --agent-4: oklch(0.72 0.07 205);
+  --agent-5: oklch(0.72 0.07 230);
+  --agent-6: oklch(0.72 0.07 285);
+  --agent-7: oklch(0.72 0.07 310);
+  --agent-8: oklch(0.72 0.07 335);
+}
+
+[data-theme-mode="dark"] .ai-team-graph {
+  background: var(--bg-secondary, #1c222b);
+}
+
+[data-theme-mode="dark"] .ai-team-board,
+[data-theme-mode="dark"] .ai-team-board.is-stage {
+  background-color: var(--bg-primary, #111827);
+}
+
+[data-theme-mode="dark"] .ai-team-card {
+  background: var(--bg-secondary, #1c2430);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.ai-team-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  min-height: 36px;
+}
+
+.ai-team-life {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
+  color: var(--text-tertiary, #94a3b8);
+}
+.ai-team-life svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  overflow: visible;
+}
+.ai-team-life.is-running { color: var(--team-live, #38bdf8); }
+.ai-team-life.is-done { color: var(--success, #22c55e); }
+.ai-team-life.is-error { color: var(--error, #ef4444); }
+.ai-team-life.is-cancelled,
+.ai-team-life.is-waiting { color: var(--text-tertiary, #94a3b8); }
+
+.ai-team-spin {
+  animation: ai-team-spin 0.85s linear infinite;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+}
+
+@keyframes ai-team-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ai-team-meta {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-team-icon-btn,
+.ai-team-open-canvas,
+.ai-team-notes-toggle {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  padding: 0;
+}
+
+.ai-team-icon-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+.ai-team-icon-btn svg { width: 15px; height: 15px; }
+.ai-team-icon-btn:hover { color: var(--text-primary, #172033); background: color-mix(in srgb, var(--text-secondary, #64748b) 10%, transparent); }
+
+.ai-team-open-canvas {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--team-live, #38bdf8);
+  background: color-mix(in srgb, var(--team-live, #38bdf8) 12%, transparent);
+}
+.ai-team-open-canvas svg { width: 13px; height: 13px; }
+.ai-team-open-canvas:hover { background: color-mix(in srgb, var(--team-live, #38bdf8) 20%, transparent); }
+
+.ai-team-body.is-collapsed .ai-team-board { display: none; }
+
+.ai-team-board {
+  position: relative;
+  border-top: 1px solid color-mix(in srgb, var(--border-color, #e2e8f0) 70%, transparent);
+  overflow: hidden;
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--text-secondary, #64748b) 18%, transparent) 1px, transparent 1.4px);
+  background-size: 16px 16px;
+  background-color: var(--bg-primary, #f8fafc);
+}
+
+.ai-team-overflow {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 40px;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--bg-secondary, #1c222b), transparent);
+}
+.ai-team-fit {
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+}
+.ai-team-dag-scale {
+  position: relative;
+}
+.ai-team-dag {
+  position: relative;
+  margin: 0 auto;
+}
+
+.ai-team-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ai-team-edge {
+  stroke: color-mix(in srgb, var(--text-secondary, #94a3b8) 55%, transparent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ai-team-edge.is-live {
+  stroke: var(--team-live, #38bdf8);
+  stroke-width: 1.8;
+}
+
+.ai-team-particle {
+  fill: var(--team-live, #38bdf8);
+}
+
+.ai-team-edge.is-done {
+  stroke: color-mix(in srgb, var(--text-secondary, #94a3b8) 42%, transparent);
+}
+
+.ai-team-port {
+  fill: color-mix(in srgb, var(--text-secondary, #94a3b8) 70%, transparent);
+  stroke: var(--bg-primary, #111);
+  stroke-width: 1.5;
+}
+.ai-team-port.is-live { fill: var(--team-live, #38bdf8); }
+
+.ai-team-card {
+  position: absolute;
+  width: 210px;
+  height: 110px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--border-color, #334155) 80%, transparent);
+  background: var(--bg-primary, #fff);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+.ai-team-card.is-input {
+  background: color-mix(in srgb, var(--bg-primary, #111) 55%, var(--bg-secondary, #1a1f27));
+  cursor: pointer;
+}
+.ai-team-card.is-work,
+.ai-team-card.is-captain {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--text-secondary, #64748b) 22%, transparent);
+}
+.ai-team-card.is-running {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--team-live, #38bdf8) 78%, transparent);
+}
+.ai-team-card.is-done {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--success, #22c55e) 72%, transparent);
+}
+.ai-team-card.is-error {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--error, #ef4444) 72%, transparent);
+}
+.ai-team-card.is-selected {
+  outline: 2px solid var(--team-live, #38bdf8);
+  outline-offset: 2px;
+}
+
+.ai-team-card-face {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+}
+
+.ai-team-card-enter {
+  animation: ai-team-card-enter 0.28s ease-out both;
+  transform-origin: center center;
+}
+
+.ai-team-card-flash {
+  animation: ai-team-card-flash 0.6s ease-out;
+  transform-origin: center center;
+  --graph-flash-color: var(--success, #22c55e);
+}
+.ai-team-card-flash.is-error {
+  --graph-flash-color: var(--error, #ef4444);
+}
+
+@keyframes ai-team-card-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ai-team-card-flash {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  40% {
+    transform: scale(1.035);
+    box-shadow: 0 0 12px 3px var(--graph-flash-color, var(--success, #22c55e));
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--graph-flash-color, var(--success, #22c55e)) 72%, transparent);
+  }
+}
+
+.ai-team-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+.ai-team-card-head strong {
+  min-width: 0;
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary, #f1f5f9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-team-avatar-wrap {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.ai-team-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ai-team-avatar.is-endpoint {
+  background: color-mix(in srgb, var(--text-secondary, #64748b) 16%, transparent);
+  color: var(--text-secondary, #94a3b8);
+}
+.ai-team-avatar svg { width: 16px; height: 16px; }
+
+.ai-team-presence {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--bg-secondary, #1a1f27);
+}
+.ai-team-presence svg {
+  width: 10px;
+  height: 10px;
+  display: block;
+  overflow: visible;
+}
+.ai-team-presence.is-waiting,
+.ai-team-presence.is-cancelled { background: color-mix(in srgb, var(--text-secondary, #94a3b8) 55%, transparent); }
+.ai-team-presence.is-running {
+  background: var(--team-live-strong, #2563eb);
+  color: var(--team-live, #38bdf8);
+}
+.ai-team-presence.is-running .ai-team-spin-track {
+  opacity: 0.42;
+  color: color-mix(in srgb, var(--team-live, #38bdf8) 70%, #fff);
+}
+.ai-team-presence.is-done { background: var(--success, #22c55e); }
+.ai-team-presence.is-error { background: var(--error, #ef4444); }
+
+.ai-team-card-status {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-secondary, #94a3b8);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ai-team-card.is-running .ai-team-card-status { color: var(--team-live, #38bdf8); }
+
+.ai-team-card-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 8px;
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--text-secondary, #94a3b8) 85%, transparent);
+}
+.ai-team-card-preview.is-live { color: color-mix(in srgb, var(--team-live, #38bdf8) 78%, var(--text-primary, #fff)); }
+.ai-team-caret {
+  display: inline-block;
+  margin-left: 2px;
+  font-style: normal;
+  animation: ai-team-caret 1s steps(1) infinite;
+  color: var(--team-live, #38bdf8);
+}
+@keyframes ai-team-caret {
+  50% { opacity: 0; }
+}
+
+.ai-team-notes {
+  border-top: 1px solid color-mix(in srgb, var(--border-color, #e2e8f0) 70%, transparent);
+  padding: 8px 12px 10px;
+}
+
+.ai-team-notes-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary, #94a3b8);
+}
+.ai-team-notes-toggle svg { width: 14px; height: 14px; flex-shrink: 0; }
+.ai-team-notes-toggle span { flex: 1; text-align: left; }
+.ai-team-notes-toggle b { font-weight: 500; font-variant-numeric: tabular-nums; }
+.ai-team-notes-toggle:hover { color: var(--text-primary, #f1f5f9); }
+
+.ai-team-note-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 160px;
+  overflow: auto;
+}
+
+.ai-team-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-primary, #0b1220) 55%, transparent);
+}
+.ai-team-note-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+.ai-team-note-meta strong {
+  font-size: 12px;
+  color: var(--text-primary, #f1f5f9);
+}
+.ai-team-note-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-secondary, #94a3b8) 16%, transparent);
+  color: var(--text-secondary, #94a3b8);
+}
+.ai-team-note p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-primary, #e2e8f0);
+  white-space: pre-wrap;
+}
+
+.ai-team-canvas-host {
+  --team-live: #38bdf8;
+  --team-live-strong: #2563eb;
+  --agent-1: oklch(0.58 0.07 95);
+  --agent-2: oklch(0.58 0.07 120);
+  --agent-3: oklch(0.58 0.07 180);
+  --agent-4: oklch(0.58 0.07 205);
+  --agent-5: oklch(0.58 0.07 230);
+  --agent-6: oklch(0.58 0.07 285);
+  --agent-7: oklch(0.58 0.07 310);
+  --agent-8: oklch(0.58 0.07 335);
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.ai-team-board.is-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-top: 0;
+}
+.ai-team-stage-offset {
+  position: absolute;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-team-spin,
+  .ai-team-caret,
+  .ai-team-card-enter,
+  .ai-team-card-flash,
+  .ai-team-presence.is-running { animation: none; }
+  .ai-team-particle { display: none; }
+}

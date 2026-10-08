@@ -1,0 +1,13 @@
+{
+  "name": "lingxi-react-bits-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lingxi third-party React Bits integration plugin",
+  "license": "SEE LICENSES DIRECTORY",
+  "scripts": {
+    "status": "node scripts/react-bits-library.cjs status",
+    "search": "node scripts/react-bits-library.cjs search",
+    "inspect": "node scripts/react-bits-library.cjs inspect",
+    "copy": "node scripts/react-bits-library.cjs copy"
+  }
+}

@@ -1,0 +1,90 @@
+node_modules/
+dist/
+# electron-builder 本地输出；保留安装器图标与 NSIS 脚本
+build/*
+!build/installer.nsh
+!build/icon.ico
+installer/payload/
+installer/dist/
+coverage/
+*.log
+*.zip
+*.7z
+*.rar
+.env
+.env.*
+!.env.example
+cache/
+temp/
+tmp/
+.lingxi-temp-diagnostics/
+# -- 灵犀恢复点排除规则（非代码产物不备份）--
+*.tar
+*.gz
+*.bz2
+*.xz
+*.whl
+*.egg
+*.exe
+*.msi
+*.dmg
+*.pkg
+*.apk
+*.iso
+*.bin
+*.dat
+*.safetensors
+*.gguf
+*.onnx
+*.pb
+*.tflite
+*.mar
+installer/
+payload/
+generated-images/
+output/react-bits-plugin-copy-test*/
+output/react-bits-installed-copy-test/
+
+# 仅作对照的 Codex harness 稀疏克隆，不纳入项目提交
+codex-harness/
+
+# 测试、诊断和运行时生成物：不应继续污染源码工作区
+.tmp-real-scenarios/
+codemap/
+change-sessions/
+.playwright-cli/
+.lingxi/visualizations/
+.lingxi/ai-memos/
+experiments/
+# 浏览器/子进程临时脚本，不属于正式测试或生产代码
+scripts/.tmp-*.js
+# 网页桥密钥应在 userData，不要进源码根
+*-web-bridge.json
+chatgpt-image-bridge.json
+
+# 运行时数据（项目、插件安装副本、账号、资产）；源码在 plugins/ 与 config/
+data/
+# MCP/代码地图缓存，不属于源码
+.aimap.json
+
+# 误放进源码树的外部数据集、对照克隆、官网草稿、已下线遥控 App
+数据009/
+AgentCore/
+音乐/
+website/
+ios/
+output/
+debug.log
+# 网关自己的浏览器档案属于运行时，不要跟服务源码放一起
+services/**/data/
+
+# Personal workspace state
+.lingxi/
+# Include installer source without build outputs
+!installer/
+installer/*
+!installer/README.md
+!installer/build-self-installer.ps1
+!installer/LingxiInstaller/
+installer/LingxiInstaller/*
+!installer/LingxiInstaller/Installer.cs

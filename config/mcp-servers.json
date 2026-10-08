@@ -1,0 +1,30 @@
+{
+  "servers": [
+    {
+      "id": "ue5",
+      "name": "ue5",
+      "type": "http",
+      "command": "",
+      "args": [],
+      "cwd": "{projectPath}",
+      "env": {},
+      "url": "http://127.0.0.1:8000/mcp",
+      "bearerEnv": "",
+      "headers": {},
+      "headerEnv": {},
+      "enabled": true,
+      "description": "External MCP server connected by Lingxi."
+    },
+    {
+      "id": "blender-mcp",
+      "name": "Blender MCP",
+      "type": "stdio",
+      "command": "D:\\游戏002\\Tools\\BlenderMCP\\cache\\archive-v0\\aENZK6vYvKtXzBFy\\Scripts\\blender-mcp.exe",
+      "args": [],
+      "cwd": "",
+      "env": {},
+      "enabled": true,
+      "description": "Local Blender MCP server. Connects to the BlenderMCP add-on on localhost:9876."
+    }
+  ]
+}

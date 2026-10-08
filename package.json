@@ -1,0 +1,88 @@
+{
+  "name": "lingxi-lingxicode",
+  "version": "1.0.0",
+  "main": "electron/main.js",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@vscode/ripgrep": "^1.18.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "esbuild": "^0.28.0",
+    "playwright-core": "^1.62.1",
+    "sharp": "^0.34.5",
+    "three": "^0.184.0",
+    "undici": "^6.26.0",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "electron": "^43.1.1",
+    "electron-builder": "^26.8.1",
+    "png-to-ico": "^3.0.1"
+  },
+  "scripts": {
+    "start": "electron .",
+    "check:syntax": "node scripts/check-syntax.js",
+    "test": "npm run check:syntax && npm run test:unit && npm run test:real",
+    "test:real": "node scripts/real-scenarios/runner.js",
+    "verify:changed": "node scripts/verify-change.js",
+    "build:startup-visual": "esbuild frontend/scripts/features/startup-access-visual.js --bundle --format=iife --platform=browser --target=chrome120 --outfile=frontend/scripts/features/startup-access-visual.bundle.js",
+    "build:gemini-agent-gateway": "esbuild services/gemini-agent-api-gateway/src/index.js --bundle --platform=node --target=node20 --format=cjs --external:playwright-core --external:electron --external:*.node --external:@resvg/resvg-js --external:@resvg/resvg-js-* --external:sharp --external:esbuild --external:@ffmpeg-installer/ffmpeg --external:@vscode/ripgrep --outfile=services/gemini-agent-api-gateway/dist/gateway.cjs && node services/gemini-agent-api-gateway/scripts/copy-admin.js",
+    "prepack": "npm run build:startup-visual && npm run build:gemini-agent-gateway",
+    "pack": "electron-builder --dir",
+    "dist": "npm run dist:self",
+    "dist:self": "powershell -NoProfile -ExecutionPolicy Bypass -File installer/build-self-installer.ps1",
+    "dist:self:skip-pack": "powershell -NoProfile -ExecutionPolicy Bypass -File installer/build-self-installer.ps1 -SkipPack",
+    "test:unit": "node --test \"tests/unit/*.test.js\""
+  },
+  "build": {
+    "appId": "com.lingxi.lingxicode",
+    "productName": "灵犀 LingXiCode",
+    "directories": {
+      "output": "E:\\灵犀-11\\安装器\\dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "package.json",
+      "electron/**",
+      "frontend/**",
+      "assets/**",
+      "config/**",
+      "skills/**",
+      "plugins/**",
+      "docs/**",
+      "services/**",
+      "!installer/**",
+      "!dist/**",
+      "services/gemini-agent-api-gateway/dist/**",
+      "!temp/**",
+      "!.tmp-real-scenarios/**",
+      "!.lingxi-temp-diagnostics/**",
+      "!codemap/**",
+      "!change-sessions/**",
+      "!node_modules/.cache/**",
+      "!**/*.log",
+      "!**/*.zip",
+      "!**/*.7z",
+      "!**/*.rar",
+      "!**/*.blockmap",
+      "!**/*Setup*.exe",
+      "!**/*Installer*.exe",
+      "!__scan*",
+      "!*.bat"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/@vscode/ripgrep*/**",
+      "electron/powershell/**",
+      "services/gemini-agent-api-gateway/dist/**"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "executableName": "lingxi-lingxicode",
+      "target": [
+        "dir"
+      ]
+    }
+  }
+}

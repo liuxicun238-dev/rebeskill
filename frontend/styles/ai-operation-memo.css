@@ -1,0 +1,785 @@
+/* 备忘录询问条默认再抬高一点，避免和输入区缓存预估条叠在一起 */
+.ai-operation-memo-handoff,
+.handoff-confirmation-queue.ai-operation-memo-handoff {
+  bottom: var(--handoff-bottom, 168px);
+}
+
+.ai-operation-memo-handoff .agent-collab-handoff-text {
+  display: grid;
+  gap: 6px;
+}
+
+.ai-operation-memo-title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 680;
+  line-height: 1.45;
+}
+
+.ai-operation-memo-meta {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.handoff-confirmation-queue .agent-collab-handoff-text {
+  display: grid;
+  gap: 6px;
+}
+
+.handoff-confirmation-title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 680;
+  line-height: 1.45;
+}
+
+.handoff-confirmation-meta {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.handoff-confirmation-body {
+  display: grid;
+  gap: 3px;
+  max-width: min(520px, 58vw);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.handoff-confirmation-body span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.handoff-confirmation-queue .agent-collab-handoff-actions button[data-action-kind="primary"] {
+  border-color: color-mix(in srgb, var(--accent-primary) 55%, transparent);
+  background: color-mix(in srgb, var(--accent-primary) 16%, var(--bg-secondary));
+  color: var(--accent-light);
+}
+
+.handoff-confirmation-queue .agent-collab-handoff-actions button[data-action-kind="danger"] {
+  border-color: color-mix(in srgb, var(--error) 48%, transparent);
+  background: color-mix(in srgb, var(--error) 10%, var(--bg-secondary));
+  color: var(--error);
+}
+
+.handoff-confirmation-queue .agent-collab-handoff-actions button:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.ai-memo-chat-rail {
+  position: absolute;
+  top: 72px;
+  bottom: 122px;
+  left: 9px;
+  width: 32px;
+  z-index: 18;
+  pointer-events: auto;
+  opacity: 0.9;
+  transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ai-memo-chat-rail.is-drawer-open {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-10px);
+}
+
+/* 标尺轨道视口容器 */
+.ai-memo-chat-rail-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+}
+/* 连续滚动的物理标尺胶带 (Tape) */
+.ai-memo-chat-rail-tape {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translateY(0);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 标尺单根刻度行 (Tick Row) */
+.ai-memo-chat-tick {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 0 0 3px;
+  cursor: pointer;
+  user-select: none;
+  --memo-tick-color: color-mix(in srgb, var(--text-muted, #94a3b8) 70%, transparent);
+  --memo-active-color: var(--memo-tick-color);
+}
+
+.ai-memo-chat-tick::before {
+  content: '';
+  display: block;
+  width: var(--tick-len, 8px);
+  height: var(--tick-thick, 1.5px);
+  border-radius: 999px;
+  background: var(--tick-bg, var(--memo-tick-color));
+  transition: width 0.12s cubic-bezier(0.2, 0.9, 0.3, 1), background-color 0.16s ease, height 0.12s ease, box-shadow 0.16s ease;
+}
+
+/* 主刻度平时也保持中性灰，分类色只在悬停标尺时出现 */
+.ai-memo-chat-tick.is-major::before {
+  background: var(--tick-bg, var(--memo-tick-color));
+}
+
+.ai-memo-chat-tick.is-lens-center::before,
+.ai-memo-chat-tick.is-cursor-active::before {
+  width: var(--tick-len, 22px);
+  height: var(--tick-thick, 2px);
+  background: var(--memo-tick-color);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--memo-tick-color) 55%, transparent);
+}
+
+.ai-memo-chat-tick.category-feat { --memo-active-color: #3b82f6; }
+.ai-memo-chat-tick.category-fix { --memo-active-color: #ef4444; }
+.ai-memo-chat-tick.category-refactor { --memo-active-color: #8b5cf6; }
+.ai-memo-chat-tick.category-optimize { --memo-active-color: #10b981; }
+.ai-memo-chat-tick.is-draft { --memo-active-color: #f59e0b; }
+
+.ai-memo-chat-rail:hover .ai-memo-chat-tick {
+  --memo-tick-color: var(--memo-active-color);
+}
+
+.ai-memo-chat-tick.is-viewport-active::before {
+  width: var(--tick-len, 11px);
+  background: var(--tick-bg, var(--memo-tick-color));
+}
+
+.ai-memo-chat-tooltip {
+  position: fixed;
+  z-index: 40;
+  left: 0;
+  top: 0;
+  max-width: 280px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-secondary) 96%, transparent);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(-3px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-memo-chat-tooltip.show {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.ai-memo-chat-modal.hidden {
+  display: none;
+}
+
+.ai-memo-chat-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.ai-memo-chat-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.34);
+}
+
+.ai-memo-chat-modal-panel {
+  position: relative;
+  width: min(760px, calc(100vw - 48px));
+  max-height: min(760px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+
+.ai-memo-chat-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+}
+
+.ai-memo-chat-modal-kicker {
+  margin-bottom: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.ai-memo-chat-modal-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.ai-memo-chat-modal-meta {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.ai-memo-chat-modal-close {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg-base) 78%, transparent);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 24px;
+}
+
+.ai-memo-chat-modal-close:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--accent-primary) 48%, var(--border-color));
+}
+
+.ai-memo-chat-modal-summary {
+  display: none;
+  padding: 12px 20px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ai-memo-chat-modal-summary:not(:empty) {
+  display: block;
+}
+
+.ai-memo-chat-modal-content {
+  flex: 1 1 auto;
+  min-height: 220px;
+  margin: 0;
+  padding: 16px 20px 20px;
+  overflow: auto;
+  color: var(--text-primary);
+  background: transparent;
+  font: 12.5px/1.65 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 聊天区消息定位高亮闪烁动效 */
+@keyframes ai-memo-msg-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-primary) 80%, transparent); border-color: var(--accent-primary); }
+  35% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent-primary) 36%, transparent); border-color: var(--accent-primary); }
+  70% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--accent-primary) 0%, transparent); border-color: var(--accent-primary); }
+  100% { box-shadow: none; }
+}
+
+.ai-memo-target-highlight {
+  animation: ai-memo-msg-pulse 1.6s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  border-radius: 8px !important;
+}
+
+/* ========================================================= */
+/* 时间树轻量抽屉 (Timeline Drawer)                         */
+/* ========================================================= */
+.ai-memo-chat-drawer {
+  position: absolute;
+  top: 48px;
+  bottom: 110px;
+  left: 8px;
+  width: 290px;
+  z-index: 28;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-secondary) 94%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.28), 0 0 0 1px color-mix(in srgb, var(--border-color) 40%, transparent);
+  transform: translateX(-110%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+  overflow: hidden;
+}
+
+.ai-memo-chat-drawer.is-open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 抽屉头部 */
+.ai-memo-drawer-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+  background: color-mix(in srgb, var(--bg-base) 45%, transparent);
+}
+
+.ai-memo-drawer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-memo-drawer-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--accent-light, #3b82f6);
+}
+
+.ai-memo-drawer-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+}
+
+.ai-memo-drawer-count {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-primary) 18%, transparent);
+  color: var(--accent-light, #60a5fa);
+  font-weight: 600;
+}
+
+.ai-memo-drawer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ai-memo-drawer-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.14s ease;
+}
+
+.ai-memo-drawer-btn:hover {
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  color: var(--text-primary);
+}
+
+.ai-memo-drawer-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* 抽屉搜索与过滤栏 */
+.ai-memo-drawer-filter {
+  flex: 0 0 auto;
+  padding: 10px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+.ai-memo-drawer-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ai-memo-drawer-search-input {
+  width: 100%;
+  height: 28px;
+  padding: 0 24px 0 28px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 65%, transparent);
+  background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+  color: var(--text-primary);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ai-memo-drawer-search-input:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-base);
+}
+
+.ai-memo-drawer-search-icon {
+  position: absolute;
+  left: 8px;
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.ai-memo-drawer-search-clear {
+  position: absolute;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.ai-memo-drawer-search-clear.show {
+  display: flex;
+}
+
+.ai-memo-drawer-chips {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.ai-memo-drawer-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.ai-memo-filter-chip {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.ai-memo-filter-chip:hover {
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  color: var(--text-primary);
+}
+
+.ai-memo-filter-chip.active {
+  border-color: var(--accent-primary);
+  background: color-mix(in srgb, var(--accent-primary) 20%, transparent);
+  color: var(--accent-light, #60a5fa);
+  font-weight: 600;
+}
+
+/* 抽屉列表区 */
+.ai-memo-drawer-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.ai-memo-drawer-empty {
+  padding: 36px 12px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-memo-drawer-card {
+  position: relative;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+  background: color-mix(in srgb, var(--bg-base) 65%, transparent);
+  transition: all 0.16s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: default;
+}
+
+.ai-memo-drawer-card:hover {
+  border-color: color-mix(in srgb, var(--accent-primary) 50%, var(--border-color));
+  background: color-mix(in srgb, var(--bg-base) 90%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+.ai-memo-drawer-card.is-active,
+.ai-memo-drawer-card.is-viewport-active {
+  border-color: var(--accent-primary);
+  background: color-mix(in srgb, var(--accent-primary) 12%, var(--bg-base));
+}
+
+/* 卡片顶部 meta */
+.ai-memo-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ai-memo-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-memo-card-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.ai-memo-card-dot.dot-feat { background: #3b82f6; box-shadow: 0 0 6px #3b82f688; }
+.ai-memo-card-dot.dot-fix { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
+.ai-memo-card-dot.dot-refactor { background: #8b5cf6; box-shadow: 0 0 6px #8b5cf688; }
+.ai-memo-card-dot.dot-optimize { background: #10b981; box-shadow: 0 0 6px #10b98188; }
+.ai-memo-card-dot.dot-draft { background: #f59e0b; }
+
+.ai-memo-card-title {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-memo-card-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.ai-memo-card-summary {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 改动统计与文件列表 */
+.ai-memo-card-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 0 2px;
+  border-top: 1px dashed color-mix(in srgb, var(--border-color) 45%, transparent);
+}
+
+.ai-memo-card-stats-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-memo-stat-add { color: #10b981; font-weight: 600; }
+.ai-memo-stat-del { color: #ef4444; font-weight: 600; }
+
+.ai-memo-card-files-toggle {
+  background: none;
+  border: none;
+  color: var(--accent-light, #60a5fa);
+  cursor: pointer;
+  padding: 0;
+  font-size: 11px;
+}
+
+.ai-memo-card-files-toggle:hover {
+  text-decoration: underline;
+}
+
+.ai-memo-card-file-list {
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 0 2px;
+}
+
+.ai-memo-card-file-list.show {
+  display: flex;
+}
+
+.ai-memo-card-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
+  font-size: 11px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.ai-memo-card-file-item:hover {
+  background: color-mix(in srgb, var(--accent-primary) 18%, var(--bg-secondary));
+  color: var(--accent-light, #60a5fa);
+}
+
+.ai-memo-card-file-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+}
+
+/* 卡片动作栏 */
+.ai-memo-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.ai-memo-action-btn {
+  flex: 1;
+  padding: 3px 6px;
+  border-radius: 5px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);
+  background: color-mix(in srgb, var(--bg-secondary) 90%, transparent);
+  color: var(--text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: all 0.12s ease;
+}
+
+.ai-memo-action-btn:hover {
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--border-color) 85%, transparent);
+}
+
+.ai-memo-action-btn.primary {
+  border-color: color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  color: var(--accent-light, #60a5fa);
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+}
+
+.ai-memo-action-btn.primary:hover {
+  background: color-mix(in srgb, var(--accent-primary) 22%, transparent);
+}
+
+.ai-memo-action-btn.danger {
+  border-color: color-mix(in srgb, #ef4444 40%, transparent);
+  color: #ef4444;
+}
+
+.ai-memo-action-btn.danger:hover {
+  background: color-mix(in srgb, #ef4444 14%, transparent);
+}
+
+/* 抽屉底部 */
+.ai-memo-drawer-footer {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--bg-base) 45%, transparent);
+}
+
+.ai-memo-drawer-esc-hint {
+  font-size: 10.5px;
+  opacity: 0.75;
+}
+
+@media (max-width: 720px) {
+  .ai-memo-chat-rail {
+    left: 4px;
+    top: 64px;
+    bottom: 116px;
+  }
+
+  .ai-memo-chat-modal {
+    padding: 14px;
+  }
+
+  .ai-memo-chat-modal-panel {
+    width: calc(100vw - 28px);
+    max-height: calc(100vh - 28px);
+  }
+}

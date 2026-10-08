@@ -1,0 +1,35 @@
+/* AI 回复去气泡化：仅移除 AI 消息容器的卡片视觉，不影响用户消息、工具调用和正文渲染 */
+.ai-message,
+.assistant-message,
+.message.ai-message,
+.message.assistant-message,
+.message[data-role="assistant"],
+.message[data-message-role="assistant"],
+[data-role="assistant"].message,
+[data-message-role="assistant"].message {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.ai-message > .message-content,
+.assistant-message > .message-content,
+.message[data-role="assistant"] > .message-content,
+.message[data-message-role="assistant"] > .message-content,
+.ai-message .ai-content,
+.assistant-message .ai-content {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* 保留适量正文呼吸空间，但去掉传统气泡的大块内边距 */
+.ai-message > .message-content,
+.assistant-message > .message-content,
+.message[data-role="assistant"] > .message-content,
+.message[data-message-role="assistant"] > .message-content {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}

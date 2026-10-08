@@ -1,0 +1,48 @@
+{
+  "name": "react-bits",
+  "version": "1.0.0",
+  "description": "第三方 React 动效组件库接入能力，内置离线组件源码与按需复制工具。",
+  "author": {
+    "name": "David Haz / React Bits"
+  },
+  "license": "MIT WITH Commons-Clause",
+  "homepage": "https://reactbits.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidHDev/react-bits.git"
+  },
+  "official": false,
+  "thirdParty": true,
+  "keywords": [
+    "react",
+    "react-bits",
+    "animation",
+    "webgl",
+    "components",
+    "第三方组件"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "React Bits",
+    "shortDescription": "第三方 React 动效组件库，安装后可离线按需接入",
+    "longDescription": "第三方能力包，来源于 DavidHDev/react-bits。随插件内置精简组件源码、四种代码变体、离线索引和按需复制工具；安装后可直接在技能下拉中选择，由 AI 根据当前项目技术栈接入单个组件。",
+    "developerName": "David Haz / React Bits",
+    "category": "Developer Tools",
+    "capabilities": [
+      "离线检索 139 个 React 组件",
+      "支持 JavaScript 与 TypeScript",
+      "支持 CSS 与 Tailwind 变体",
+      "分析组件依赖并按需复制",
+      "根据现有设计系统进行适配"
+    ],
+    "defaultPrompt": [
+      "从 React Bits 里找一个适合当前首屏的背景动效",
+      "把 Light Rays 接入当前 React 项目并适配主题色",
+      "搜索适合按钮、文字和卡片的交互动效"
+    ],
+    "logo": "./assets/logo.svg",
+    "brandColor": "#8B5CF6",
+    "websiteURL": "https://github.com/DavidHDev/react-bits",
+    "screenshots": []
+  }
+}

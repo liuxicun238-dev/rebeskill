@@ -1,0 +1,55 @@
+{
+  "name": "product-design-plus",
+  "version": "0.1.50",
+  "description": "Product Design+ turns early ideas into prototypes teams can review. Confirm the brief, explore directions, audit flows, clone from a live URL, and make screenshots interactive.",
+  "author": {
+    "name": "Lingxi",
+    "email": "support@lingxi.local",
+    "url": "https://openai.com/"
+  },
+  "homepage": "https://openai.com/",
+  "repository": "https://github.com/openai/oai-maintained-plugins/tree/main/plugins/product-design",
+  "license": "Proprietary",
+  "keywords": [
+    "prototype",
+    "product design",
+    "prototyping",
+    "user experience",
+    "wireframes",
+    "design systems",
+    "figma",
+    "frontend",
+    "ux-research",
+    "ux-audit",
+    "accessibility-audit",
+    "research",
+    "context-gathering",
+    "ideation",
+    "image-generation"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Product Design+",
+    "shortDescription": "Explore and prototype ideas",
+    "longDescription": "Turn early ideas into prototypes teams can review. Explore product directions, audit user flows, research user friction, prototype from a live URL, and make static screenshots interactive. Start with a written brief, URL, screenshot, or existing design, then compare visual directions before building.\n\nUse available browser, Figma, Canva, image generation, and hosting tools to gather references, create concepts, review the result, and carry the work forward with your team.",
+    "developerName": "Lingxi",
+    "category": "Creativity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://openai.com/",
+    "privacyPolicyURL": "https://openai.com/policies/privacy-policy/",
+    "termsOfServiceURL": "https://openai.com/policies/terms-of-use/",
+    "defaultPrompt": [
+      "Help me get started",
+      "Turn this product idea into three visual directions",
+      "Design a landing page for my business"
+    ],
+    "composerIcon": "./assets/composerIcon.svg",
+    "logo": "./assets/logo.png",
+    "brandColor": "#FF66AD",
+    "screenshots": []
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "product-design-plus",
+  "version": "0.1.50",
+  "private": true,
+  "type": "module",
+  "description": "Product Design+ turns early ideas into prototypes teams can review. Resolve the minimum brief, explore directions, audit flows, prototype from a live URL, and make static screenshots interactive.",
+  "repository": "https://github.com/openai/oai-maintained-plugins/tree/main/plugins/product-design",
+  "scripts": {
+    "prototype:bootstrap": "node scripts/bootstrap-prototype.mjs"
+  }
+}
